@@ -1,0 +1,14 @@
+# Local environment files
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Generated build and local tooling output
+backend/target/
+client/.next/
+client/node_modules/
+.vscode/*.log
+.vscode/
