@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
 import org.springframework.ai.document.Document;
@@ -32,6 +34,9 @@ import lombok.extern.slf4j.Slf4j;
 public class IndexingService {
     private static final int VECTOR_BATCH_SIZE = 32;
     private static final int PROGRESS_EVERY_N_FILES = 5;
+    private static final Pattern RETRY_DELAY_PATTERN = Pattern.compile(
+            "retry(?: in|Delay[\\\": ]+)([0-9]+(?:\\.[0-9]+)?)s",
+            Pattern.CASE_INSENSITIVE);
 
     private final RepositoryRepository repositoryRepository;
     private final UserService userService;
@@ -43,6 +48,12 @@ public class IndexingService {
 
     @Value("${app.indexing.max-file-bytes:102400}")
     private long maxFileBytes;
+
+    @Value("${app.indexing.embedding.max-retries:3}")
+    private int embeddingMaxRetries;
+
+    @Value("${app.indexing.embedding.fallback-retry-delay-ms:60000}")
+    private long embeddingFallbackRetryDelayMs;
 
     public Repository startIndexing(UUID repoId, UUID userId) {
         Repository repo = repositoryRepository.findByIdAndUserId(repoId, userId)
@@ -97,7 +108,7 @@ public class IndexingService {
                 batch.addAll(chunks);
                 totalChunks += chunks.size();
                 if (batch.size() >= VECTOR_BATCH_SIZE) {
-                    vectorStore.add(batch);
+                    addToVectorStoreWithRetry(batch);
                     batch.clear();
                 }
             } catch (Exception ex) {
@@ -112,7 +123,7 @@ public class IndexingService {
         }
 
         if (!batch.isEmpty()) {
-            vectorStore.add(batch);
+            addToVectorStoreWithRetry(batch);
         }
 
         markReady(repoId, filePaths.size(), processed, totalChunks, repo.getFullName());
@@ -145,6 +156,73 @@ public class IndexingService {
             log.warn("Could not delete existing vectors for repo {}: {}", repoId, ex.getMessage());
         }
     };
+
+    private void addToVectorStoreWithRetry(List<Document> documents) {
+        int attempt = 0;
+        while (true) {
+            try {
+                vectorStore.add(documents);
+                return;
+            } catch (RuntimeException ex) {
+                if (!isRateLimitException(ex) || attempt >= embeddingMaxRetries) {
+                    throw ex;
+                }
+
+                long delayMs = retryDelayMs(ex, attempt);
+                attempt++;
+                log.warn(
+                        "Embedding rate limit reached for batch of {} chunks. Retrying in {} ms (attempt {}/{})",
+                        documents.size(), delayMs, attempt, embeddingMaxRetries);
+                pauseBeforeRetry(delayMs);
+            }
+        }
+    }
+
+    private boolean isRateLimitException(Throwable throwable) {
+        Throwable current = throwable;
+        while (current != null) {
+            String message = current.getMessage();
+            if (message != null && (message.contains("429")
+                    || message.toLowerCase().contains("quota exceeded")
+                    || message.toLowerCase().contains("rate limit"))) {
+                return true;
+            }
+            current = current.getCause();
+        }
+        return false;
+    }
+
+    private long retryDelayMs(Throwable throwable, int attempt) {
+        Matcher matcher = RETRY_DELAY_PATTERN.matcher(exceptionMessages(throwable));
+        if (matcher.find()) {
+            double seconds = Double.parseDouble(matcher.group(1));
+            return Math.max(1000L, (long) Math.ceil(seconds * 1000));
+        }
+
+        long exponentialDelay = embeddingFallbackRetryDelayMs * (1L << Math.min(attempt, 4));
+        return Math.min(exponentialDelay, 300000L);
+    }
+
+    private String exceptionMessages(Throwable throwable) {
+        StringBuilder messages = new StringBuilder();
+        Throwable current = throwable;
+        while (current != null) {
+            if (current.getMessage() != null) {
+                messages.append(current.getMessage()).append(' ');
+            }
+            current = current.getCause();
+        }
+        return messages.toString();
+    }
+
+    private void pauseBeforeRetry(long delayMs) {
+        try {
+            Thread.sleep(delayMs);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while waiting to retry embedding request", ex);
+        }
+    }
 
     @Transactional
     protected void updateProgress(
