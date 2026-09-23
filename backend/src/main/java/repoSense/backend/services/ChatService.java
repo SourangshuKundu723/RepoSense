@@ -74,6 +74,13 @@ public class ChatService {
                 .toList();
     }
 
+    @Transactional
+    public void deleteSession(UUID userId, UUID sessionId) {
+        ChatSession session = requireSession(userId, sessionId);
+        chatMessageRepository.deleteBySessionId(session.getId());
+        chatSessionRepository.delete(session);
+    }
+
     @Transactional(readOnly = true)
     public List<ChatMessageResponse> getMessages(UUID userId, UUID sessionId) {
         ChatSession session = requireSession(userId, sessionId);

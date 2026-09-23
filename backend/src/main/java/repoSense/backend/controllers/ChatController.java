@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -48,6 +49,13 @@ public class ChatController {
     public List<ChatMessageResponse> getMessages(@PathVariable UUID id) {
         UUID userId = currentUser.require().getId();
         return chatService.getMessages(userId, id);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSession(@PathVariable UUID id) {
+        UUID userId = currentUser.require().getId();
+        chatService.deleteSession(userId, id);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping(value = "/{id}/messages", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
