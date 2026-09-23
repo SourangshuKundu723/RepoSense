@@ -120,7 +120,7 @@ export function OverviewDashboard() {
                         </div>
                         <Link
                             href="/dashboard"
-                            className="text-sm font-medium text-primary hover:underline"
+                            className="text-sm font-medium opacity-100 text-indigo-500 hover:backdrop-opacity-95"
                         >
                             View all
                         </Link>

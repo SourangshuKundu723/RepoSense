@@ -26,12 +26,12 @@ export default function HomePage() {
         </div>
       </header>
 
-      <main className="relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-16 px-4 py-16 md:py-24">
-        <section className="mx-auto max-w-2xl space-y-6 text-center">
+      <main className="relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-10 px-4 py-10 md:gap-12 md:py-12">
+        <section className="mx-auto max-w-2xl space-y-5 text-center">
           <div className="mx-auto flex size-14 items-center justify-center rounded-2xl shadow-sm">
             <RepoSenseIcon className="size-14 rounded-2xl" />
           </div>
-          <div className="space-y-3">
+          <div className="space-y-2">
             <h1 className="font-heading text-4xl font-semibold tracking-tight sm:text-5xl">
               RepoSense
             </h1>

@@ -26,7 +26,7 @@ export function RepoSenseIcon({
                 width="64"
                 height="64"
                 rx="15"
-                fill={mono ? "currentColor" : "#0D9488"}
+                fill={mono ? "currentColor" : "var(--sidebar-primary)"}
             />
             <path
                 d="M22 30l7 7-7 7"
@@ -66,7 +66,7 @@ export function RepoSenseLogo({
             className={cn("shrink-0", className)}
             {...props}
         >
-            <rect width="64" height="64" rx="15" fill="#0D9488" />
+            <rect width="64" height="64" rx="15" fill="var(--sidebar-primary)" />
             <path
                 d="M22 30l7 7-7 7"
                 stroke="#FFFFFF"
