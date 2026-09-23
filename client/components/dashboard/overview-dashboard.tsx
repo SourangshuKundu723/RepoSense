@@ -20,17 +20,20 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRepos } from "@/hooks/use-repos";
+import { cn } from "@/lib/utils";
 
 function StatCard({
     label,
     value,
     hint,
     icon: Icon,
+    iconClassName,
 }: {
     label: string;
     value: string | number;
     hint?: string;
     icon: typeof FolderGit2;
+    iconClassName?: string;
 }) {
     return (
         <Card size="sm">
@@ -40,7 +43,12 @@ function StatCard({
                         <CardDescription>{label}</CardDescription>
                         <CardTitle className="mt-1 text-2xl font-semibold">{value}</CardTitle>
                     </div>
-                    <div className="rounded-lg bg-muted p-2 text-muted-foreground">
+                    <div
+                        className={cn(
+                            "rounded-lg bg-muted p-2 text-muted-foreground",
+                            iconClassName
+                        )}
+                    >
                         <Icon className="size-4" />
                     </div>
                 </div>
@@ -86,24 +94,28 @@ export function OverviewDashboard() {
                             value={repos.length}
                             hint="Connected from GitHub"
                             icon={FolderGit2}
+                            iconClassName="bg-indigo-500/10 text-indigo-500"
                         />
                         <StatCard
                             label="Ready to chat"
                             value={readyCount}
                             hint={`${indexingCount} currently indexing`}
                             icon={CheckCircle2}
+                            iconClassName="bg-emerald-500/10 text-emerald-500"
                         />
                         <StatCard
                             label="Indexed chunks"
                             value={totalChunks.toLocaleString()}
                             hint="Searchable code segments"
                             icon={MessageSquareCode}
+                            iconClassName="bg-sky-500/10 text-sky-500"
                         />
                         <StatCard
                             label="Needs attention"
                             value={failedCount}
                             hint={failedCount > 0 ? "Review failed indexing jobs" : "All repos healthy"}
                             icon={failedCount > 0 ? AlertCircle : LoaderCircle}
+                            iconClassName={failedCount > 0 ? "bg-red-500/10 text-red-500" : "bg-emerald-500/10 text-emerald-500"}
                         />
                     </>
                 )}
@@ -168,7 +180,7 @@ export function OverviewDashboard() {
                     </div>
 
                     <Card>
-                        <CardContent className="space-y-3 pt-6">
+                        <CardContent className="space-y-3 pt-1">
                             {reposQuery.isLoading ? (
                                 Array.from({ length: 4 }).map((_, index) => (
                                     <Skeleton key={index} className="h-8 rounded-lg" />
@@ -176,7 +188,7 @@ export function OverviewDashboard() {
                             ) : (
                                 <>
                                     <div className="flex items-center justify-between gap-3">
-                                        <span className="text-sm text-muted-foreground">Ready</span>
+                                        <span className="text-sm text-green-500">Ready</span>
                                         <Badge variant="secondary">{readyCount}</Badge>
                                     </div>
                                     <div className="flex items-center justify-between gap-3">
@@ -184,13 +196,13 @@ export function OverviewDashboard() {
                                         <Badge variant="secondary">{indexingCount}</Badge>
                                     </div>
                                     <div className="flex items-center justify-between gap-3">
-                                        <span className="text-sm text-muted-foreground">Pending</span>
+                                        <span className="text-sm text-yellow-500">Pending</span>
                                         <Badge variant="secondary">
                                             {repos.filter((repo) => repo.indexStatus === "PENDING").length}
                                         </Badge>
                                     </div>
                                     <div className="flex items-center justify-between gap-3">
-                                        <span className="text-sm text-muted-foreground">Failed</span>
+                                        <span className="text-sm text-red-500">Failed</span>
                                         <Badge variant={failedCount > 0 ? "destructive" : "secondary"}>
                                             {failedCount}
                                         </Badge>

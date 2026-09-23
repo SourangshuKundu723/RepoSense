@@ -95,6 +95,9 @@ export function useStreamChat(sessionId: string | null) {
                 createdAt: new Date().toISOString(),
             };
 
+            await queryClient.cancelQueries({
+                queryKey: queryKeys.chat.messages(sessionId),
+            });
             queryClient.setQueryData<ChatMessage[]>(
                 queryKeys.chat.messages(sessionId),
                 (prev) => [...(prev ?? []), optimistic]
@@ -109,10 +112,25 @@ export function useStreamChat(sessionId: string | null) {
                     onUserMessage: (message) => {
                         queryClient.setQueryData<ChatMessage[]>(
                             queryKeys.chat.messages(sessionId),
-                            (prev) => [
-                                ...(prev ?? []).filter((m) => m.id !== optimisticId),
-                                message,
-                            ]
+                            (prev) => {
+                                const messages = (prev ?? []).filter(
+                                    (current) =>
+                                        current.id !== optimisticId &&
+                                        current.id !== message.id
+                                );
+                                const existingIndex = messages.findIndex(
+                                    (current) =>
+                                        current.role === message.role &&
+                                        current.content === message.content
+                                );
+
+                                if (existingIndex >= 0) {
+                                    messages[existingIndex] = message;
+                                    return messages;
+                                }
+
+                                return [...messages, message];
+                            }
                         );
                     },
                     onToken: (token) => {
@@ -121,7 +139,14 @@ export function useStreamChat(sessionId: string | null) {
                     onAssistantMessage: (message) => {
                         queryClient.setQueryData<ChatMessage[]>(
                             queryKeys.chat.messages(sessionId),
-                            (prev) => [...(prev ?? []), message]
+                            (prev) => {
+                                const messages = prev ?? [];
+                                return messages.some((current) => current.id === message.id)
+                                    ? messages.map((current) =>
+                                          current.id === message.id ? message : current
+                                      )
+                                    : [...messages, message];
+                            }
                         );
                         setStreamText("");
                     },

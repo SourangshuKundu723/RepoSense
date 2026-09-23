@@ -23,18 +23,20 @@ export function ChatMessages({
     repo,
     messages,
     streamText,
+    streaming,
     isLoading,
 }: {
     repo: Repository;
     messages: ChatMessage[];
     streamText?: string;
+    streaming?: boolean;
     isLoading?: boolean;
 }) {
     const bottomRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages, streamText]);
+    }, [messages, streamText, streaming]);
 
     if (isLoading) {
         return (
@@ -49,7 +51,7 @@ export function ChatMessages({
     return (
         <ScrollArea className="flex-1">
             <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 py-6">
-                {messages.length === 0 && !streamText && (
+                {messages.length === 0 && !streamText && !streaming && (
                     <div className="rounded-2xl border border-dashed bg-muted/30 px-6 py-10 text-center">
                         <p className="font-medium">Ask anything about this codebase</p>
                         <p className="mt-1 text-sm text-muted-foreground">
@@ -107,7 +109,7 @@ export function ChatMessages({
                         );
                     })}
 
-                    {streamText && (
+                    {(streaming || streamText) && (
                         <Message align="start">
                             <MessageAvatar>
                                 <Avatar className="size-8">
@@ -119,8 +121,25 @@ export function ChatMessages({
                             <MessageContent>
                                 <Bubble variant="muted" align="start" className="max-w-full">
                                     <BubbleContent className="w-full max-w-full px-4 py-3">
-                                        <ChatMarkdown content={streamText} isStreaming />
-                                        <span className="ml-0.5 inline-block h-4 w-1.5 animate-pulse rounded-sm bg-foreground/50 align-middle" />
+                                        {streamText ? (
+                                            <>
+                                                <ChatMarkdown content={streamText} isStreaming />
+                                                <span className="ml-0.5 inline-block h-4 w-1.5 animate-pulse rounded-sm bg-foreground/50 align-middle" />
+                                            </>
+                                        ) : (
+                                            <div
+                                                className="flex items-center gap-2 text-sm text-muted-foreground"
+                                                role="status"
+                                                aria-label="Assistant is generating a response"
+                                            >
+                                                <span>Generating response</span>
+                                                <span className="flex gap-1" aria-hidden="true">
+                                                    <span className="size-1.5 animate-bounce rounded-full bg-current [animation-delay:-0.3s]" />
+                                                    <span className="size-1.5 animate-bounce rounded-full bg-current [animation-delay:-0.15s]" />
+                                                    <span className="size-1.5 animate-bounce rounded-full bg-current" />
+                                                </span>
+                                            </div>
+                                        )}
                                     </BubbleContent>
                                 </Bubble>
                             </MessageContent>
