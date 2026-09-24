@@ -18,8 +18,7 @@ RepoSense is an AI-powered codebase assistant that connects to GitHub, syncs all
 - Manage repository chat sessions.
 
 <div align="center">
-    <img src="docs/images/Repositories.png" width="48%"/>
-    <img src="docs/images/Chat.png" width="48%"/>
+    <img src="docs/images/Repositories.png" height="50%" width="90%"/>
 </div>
 
 ## ⚙️ How It Works
@@ -29,6 +28,10 @@ RepoSense is an AI-powered codebase assistant that connects to GitHub, syncs all
 3. A user selects a repository and starts indexing.
 4. The backend fetches repository contents from GitHub, chunks source files, generates Gemini embeddings, and stores the chunks in PostgreSQL with `pgvector`.
 5. Chat questions retrieve relevant chunks and stream a grounded answer with citations back to the Next.js client.
+
+<div align="center">
+    <img src="docs/images/Chat.png" height="50%" width="90%"/>
+</div>
 
 ## 🤖 RAG Pipeline
 
