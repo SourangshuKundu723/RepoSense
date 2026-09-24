@@ -67,11 +67,12 @@ export function AppShell({
                         <SidebarMenuItem>
                             <SidebarMenuButton
                                 size="lg"
+                                className="group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0"
                                 render={<Link href="/dashboard" />}
                                 tooltip="RepoSense"
                             >
-                                <RepoSenseIcon className="size-8 rounded-[10px]" />
-                                <div className="grid flex-1 text-left text-sm leading-tight">
+                                <RepoSenseIcon className="size-9 rounded-[10px]" />
+                                <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
                                     <span className="truncate font-semibold">RepoSense</span>
                                     <span className="truncate text-xs text-muted-foreground">
                                         Chat with your code

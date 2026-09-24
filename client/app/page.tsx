@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, FolderGit2, MessageSquareCode, Sparkles } from "lucide-react";
 
+import { GitHubIcon } from "@/components/icons/github-icon";
 import { RepoSenseIcon } from "@/components/icons/reposense-icon";
 import { BrandMark } from "@/components/layout/app-shell";
 import { ModeToggle } from "@/components/ui/mode-toggle";
@@ -48,7 +49,7 @@ export default function HomePage() {
                 "inline-flex items-center gap-1.5"
               )}
             >
-              <FolderGit2 className="size-4" />
+              <GitHubIcon className="size-4" />
               Continue with GitHub
               <ArrowRight className="size-4" />
             </a>
