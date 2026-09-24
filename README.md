@@ -2,6 +2,10 @@
 
 RepoSense is an AI-powered codebase assistant that connects to GitHub, syncs all GitHub repositories, indexes repository source code, and lets you explore a codebase through grounded, citation-backed chat.
 
+<div align="center">
+    <img src="docs/images/Home.png"/>
+</div>
+
 ## ✨ Features
 
 - Sign in with GitHub OAuth.
@@ -12,6 +16,11 @@ RepoSense is an AI-powered codebase assistant that connects to GitHub, syncs all
 - View source citations with file paths and line ranges.
 - Track repository indexing progress and failures from the dashboard.
 - Manage repository chat sessions.
+
+<div align="center">
+    <img src="docs/images/Repositories.png" width="48%"/>
+    <img src="docs/images/Chat.png" width="48%"/>
+</div>
 
 ## ⚙️ How It Works
 
