@@ -247,6 +247,43 @@ Check that `GEMINI_API_KEY` is valid, the repository has been indexed successful
 - Rotate any credential that has been exposed publicly.
 - Use separate credentials and encryption values for development and production.
 
+## 🤝 Contributing
+
+Contributions are welcome! Whether you're fixing a bug, improving the UI, refining the backend, or adding a new feature, we appreciate thoughtful pull requests.
+
+### How to contribute
+
+1. Fork this repository and clone your fork locally.
+2. Create a feature branch from the latest `main` branch:
+
+```bash
+git checkout -b feature/your-change
+```
+
+3. Set up the project locally by following the steps in the [Local Development](#-local-development) section.
+4. Make your changes and keep commits small and descriptive.
+5. Run the relevant checks before submitting:
+
+```bash
+cd backend
+./mvnw test
+
+cd ../client
+npm run lint
+npm run build
+```
+
+6. Push your branch and open a pull request with a clear title and summary of the change.
+
+### Contribution guidelines
+
+- Keep changes focused and easy to review.
+- Include tests when adding behavior or fixing a bug.
+- Update documentation when the user-facing behavior changes.
+- Open an issue before starting large or architectural changes when possible.
+
+We appreciate clean, well-documented contributions that match the project's existing patterns.
+
 ## 📄 License
 
 See [`LICENSE`](LICENSE) for the project license.
